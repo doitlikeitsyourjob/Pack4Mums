@@ -11,20 +11,21 @@ import android.util.Log;
 public class MainMenuDbAdapter {
 
     //MAINLIST
-    public static final String KEY_ROWID = "_id";
+    public static final String KEY_LISTID = "_id";
     //public static final String KEY_LISTCODE = "listcode";
     public static final String KEY_LISTNAME = "listname";
     public static final String KEY_FAV = "fav";
 
     //MAINITEMLIST
-    public static final String KEY_MAINLISTCODE = "listcode";
-    public static final String KEY_MAINITEMCODE = "itemcode";
+    public static final String KEY_ROWID = "_id";
+    public static final String KEY_MAINLISTID = "listid";
+    public static final String KEY_MAINITEMID = "itemid";
     public static final String KEY_CHECK = "checktick";
     public static final String KEY_DELETE = "deleterow";
     public static final String KEY_STAR = "starred";
 
     //ITEMLIST
-    public static final String KEY_ITEMCODE = "itemcode";
+    public static final String KEY_ITEMID = "itemid";
     public static final String KEY_ITEMNAME = "itemname";
     public static final String KEY_ITEMBUYLINK = "itembuylink";
 
@@ -45,29 +46,28 @@ public class MainMenuDbAdapter {
 
     private static final String CREATE_MAINLISTS =
             "CREATE TABLE if not exists " + SQLITE_TABLE_MAINLISTS + " (" +
-                    KEY_ROWID + " integer PRIMARY KEY autoincrement," +
+                    KEY_LISTID + " integer PRIMARY KEY autoincrement," +
             //        KEY_LISTCODE + "," +
                     KEY_LISTNAME + "," +
                     KEY_FAV + "," +
-                    " UNIQUE (" + KEY_ROWID  +"));"; //+ "," + KEY_LISTCODE
+                    " UNIQUE (" + KEY_LISTNAME  +"));"; //+ "," + KEY_LISTCODE
 
     private static final String CREATE_MAINITEMLISTS =
             "CREATE TABLE if not exists " + SQLITE_TABLE_MAINITEMLISTS + " (" +
                     KEY_ROWID + " integer PRIMARY KEY autoincrement," +
-                    KEY_MAINLISTCODE + ", " +
-                    KEY_MAINITEMCODE + ", " +
+                    KEY_MAINLISTID + ", " +
+                    KEY_MAINITEMID + ", " +
                     KEY_CHECK + ", " +
                     KEY_DELETE + ", " +
                     KEY_STAR + ", " +
-                    " UNIQUE ( " + KEY_MAINLISTCODE +","+KEY_MAINITEMCODE+" ));";
+                    " UNIQUE ( " + KEY_MAINLISTID +","+KEY_MAINITEMID+" ));";
 
     private static final String CREATE_ITEMLISTS =
             "CREATE TABLE if not exists " + SQLITE_TABLE_ITEMLISTS + " (" +
-                    KEY_ROWID + " integer PRIMARY KEY autoincrement," +
-                    KEY_ITEMCODE + "," +
+                    KEY_ITEMID + " integer PRIMARY KEY autoincrement," +
                     KEY_ITEMNAME + "," +
                     KEY_ITEMBUYLINK + "," +
-                    " UNIQUE (" + KEY_ITEMCODE +"));";
+                    " UNIQUE (" + KEY_ITEMNAME +"));";
 
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -135,10 +135,10 @@ public class MainMenuDbAdapter {
     }
 
     //MAINITEMLISTS
-    public long createMainItemLists(Integer listcode, Integer itemcode, Integer checktick, Integer deleterow, Integer starred) {
+    public long createMainItemLists(Integer listid, Integer itemid, Integer checktick, Integer deleterow, Integer starred) {
         ContentValues initialValues = new ContentValues();
-        initialValues.put(KEY_MAINLISTCODE, listcode);
-        initialValues.put(KEY_MAINITEMCODE, itemcode);
+        initialValues.put(KEY_MAINLISTID, listid);
+        initialValues.put(KEY_MAINITEMID, itemid);
         initialValues.put(KEY_CHECK, checktick);
         initialValues.put(KEY_DELETE, deleterow);
         initialValues.put(KEY_STAR, starred);
@@ -147,9 +147,9 @@ public class MainMenuDbAdapter {
     }
 
     //ITEMLISTS
-    public long createItemLists(Integer itemcode, String itemname, String itembuylink ) {
+    public long createItemLists(String itemname, String itembuylink ) {
         ContentValues initialValues = new ContentValues();
-        initialValues.put(KEY_ITEMCODE, itemcode);
+        //initialValues.put(KEY_ITEMCODE, itemcode);
         initialValues.put(KEY_ITEMNAME, itemname);
         initialValues.put(KEY_ITEMBUYLINK, itembuylink);
 
@@ -194,11 +194,11 @@ public class MainMenuDbAdapter {
 
     //ITEMLISTS
     public void insertItemLists() {
-        createItemLists(1,"Sleeping Bag","link");
-        createItemLists(2,"Night nappies (1.3 p night)","link");
-        createItemLists(3,"Pyjamas","link");
-        createItemLists(4,"Comforter","link");
-        createItemLists(5,"Baby monitor","link");
+        createItemLists("Sleeping Bag","link1");
+        createItemLists("Night nappies (1.3 p night)","link2");
+        createItemLists("Pyjamas","link3");
+        createItemLists("Comforter","link4");
+        createItemLists("Baby monitor","link5");
     }
 
     //FETCHES
@@ -206,13 +206,13 @@ public class MainMenuDbAdapter {
         Log.w(TAG, inputText);
         Cursor mCursor = null;
         if (inputText == null  ||  inputText.length () == 0)  {
-            mCursor = mDb.query(SQLITE_TABLE_MAINLISTS, new String[] {KEY_ROWID, //KEY_LISTCODE,
+            mCursor = mDb.query(SQLITE_TABLE_MAINLISTS, new String[] {KEY_LISTID, //KEY_LISTCODE,
                      KEY_LISTNAME, KEY_FAV},
                     null, null, null, null, null);
 
         }
         else {
-            mCursor = mDb.query(true, SQLITE_TABLE_MAINLISTS, new String[] {KEY_ROWID, //KEY_LISTCODE,
+            mCursor = mDb.query(true, SQLITE_TABLE_MAINLISTS, new String[] {KEY_LISTID, //KEY_LISTCODE,
                      KEY_LISTNAME, KEY_FAV },
                     KEY_LISTNAME + " like '%" + inputText + "%'", null,
                     null, null, null, null);
@@ -226,7 +226,7 @@ public class MainMenuDbAdapter {
 
     public Cursor fetchAll() {
 
-        Cursor mCursor = mDb.query(SQLITE_TABLE_MAINLISTS, new String[] {KEY_ROWID, //KEY_LISTCODE,
+        Cursor mCursor = mDb.query(SQLITE_TABLE_MAINLISTS, new String[] {KEY_LISTID, //KEY_LISTCODE,
                  KEY_LISTNAME, KEY_FAV},
                 null, null, null, null, null);
 
@@ -238,7 +238,7 @@ public class MainMenuDbAdapter {
 
     public Cursor fetchAllFav() {
 
-        Cursor mCursor = mDb.query(SQLITE_TABLE_MAINLISTS, new String[] {KEY_ROWID, //KEY_LISTCODE,
+        Cursor mCursor = mDb.query(SQLITE_TABLE_MAINLISTS, new String[] {KEY_LISTID, //KEY_LISTCODE,
                  KEY_LISTNAME, KEY_FAV},
                 KEY_FAV + " =1", null, null, null, null);
 
@@ -250,7 +250,7 @@ public class MainMenuDbAdapter {
 
     public Cursor fetchAllMainLists() {
 
-        Cursor mCursor = mDb.query(SQLITE_TABLE_MAINLISTS, new String[] {KEY_ROWID, //KEY_LISTCODE,
+        Cursor mCursor = mDb.query(SQLITE_TABLE_MAINLISTS, new String[] {KEY_LISTID, //KEY_LISTCODE,
                  KEY_LISTNAME, KEY_FAV},
                 KEY_FAV + " =0", null, null, null, null);
 
@@ -263,7 +263,7 @@ public class MainMenuDbAdapter {
     public Cursor fetchItemsForList(Integer listcode){
 
         //String stringlistcode =  Integer.toString(listcode);
-        final String MY_QUERY = "SELECT * FROM ItemList a INNER JOIN MainItemList b ON a.itemcode=b.itemcode WHERE b._id=" + listcode + "";
+        final String MY_QUERY = "SELECT * FROM ItemList a INNER JOIN MainItemList b ON a.itemid=b.itemid WHERE b._id=" + listcode + "";
         //a._id, a.itemcode, a.itemname, a.itembuylink, b.checktick, b.starred
         Cursor mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
 

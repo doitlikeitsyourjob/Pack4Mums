@@ -97,7 +97,7 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
 
         // The desired columns to be bound
         String[] columns = new String[] {
-                MainMenuDbAdapter.KEY_ROWID,
+                MainMenuDbAdapter.KEY_LISTID,
                 MainMenuDbAdapter.KEY_LISTNAME,
                 MainMenuDbAdapter.KEY_FAV
         };
@@ -144,7 +144,7 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
 
         // The desired columns to be bound
         String[] columns = new String[] {
-                MainMenuDbAdapter.KEY_ROWID, //KEY_LISTCODE
+                MainMenuDbAdapter.KEY_LISTID, //KEY_LISTCODE
                 MainMenuDbAdapter.KEY_LISTNAME,
                 MainMenuDbAdapter.KEY_FAV
         };

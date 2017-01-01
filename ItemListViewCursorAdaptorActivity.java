@@ -32,7 +32,7 @@ public class ItemListViewCursorAdaptorActivity extends Activity {
 
         // The desired columns to be bound
         String[] columns = new String[] {
-                MainMenuDbAdapter.KEY_ITEMCODE,
+                MainMenuDbAdapter.KEY_ITEMID,
                 MainMenuDbAdapter.KEY_ITEMNAME,
                 MainMenuDbAdapter.KEY_ITEMBUYLINK,
                 MainMenuDbAdapter.KEY_CHECK
@@ -43,7 +43,7 @@ public class ItemListViewCursorAdaptorActivity extends Activity {
                 R.id.code,
                 R.id.name,
                 R.id.description,
-                R.id.link,
+                R.id.checkBox,
         };
 
         // create the adapter using the cursor pointing to the desired data

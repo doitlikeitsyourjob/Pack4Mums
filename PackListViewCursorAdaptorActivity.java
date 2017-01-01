@@ -60,7 +60,7 @@ public class PackListViewCursorAdaptorActivity extends Activity {
                 R.id.code,
                 R.id.name,
                 R.id.description,
-                R.id.link,
+                R.id.checkBox,
         };
 
         // create the adapter using the cursor pointing to the desired data
