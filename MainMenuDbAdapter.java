@@ -183,11 +183,11 @@ public class MainMenuDbAdapter {
 
     //MAINITEMLISTS
     public void insertMenuItemLists() {
-        createMainItemLists(1, 1, 0, 0, 0);
-        createMainItemLists(1, 2, 0, 0, 0);
-        createMainItemLists(1, 3, 0, 0, 0);
-        createMainItemLists(1, 4, 0, 0, 0);
-        createMainItemLists(1, 5, 0, 0, 0);
+        createMainItemLists(1, 1, 1, 0, 0);
+        createMainItemLists(1, 2, 1, 0, 0);
+        createMainItemLists(1, 3, 1, 0, 0);
+        createMainItemLists(1, 4, 1, 0, 0);
+        createMainItemLists(1, 5, 1, 0, 0);
         createMainItemLists(2, 4, 0, 0, 0);
         createMainItemLists(3, 5, 0, 0, 0);
     }
@@ -301,6 +301,15 @@ public class MainMenuDbAdapter {
         //mDb.update(SQLITE_TABLE, cv, "_id="+p, null);
 
         String strSQL = "UPDATE MainList SET fav = 1 WHERE _id = " + String.valueOf(code) + "";
+        mDb.execSQL(strSQL);
+    }
+
+    //DELETES
+    public void deleteList(Long code) {
+        //ContentValues cv = new ContentValues();
+        //mDb.update(SQLITE_TABLE, cv, "_id="+p, null);
+
+        String strSQL = "DELETE FROM MainList WHERE _id = " + String.valueOf(code)+ "";
         mDb.execSQL(strSQL);
     }
 

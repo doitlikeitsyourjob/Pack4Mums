@@ -3,8 +3,10 @@ package com.doitlikeitsyourjob.pack4mums;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Html;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 public class ItemListViewCursorAdaptorActivity extends Activity {
 
@@ -41,8 +43,8 @@ public class ItemListViewCursorAdaptorActivity extends Activity {
         // the XML defined views which the data will be bound to
         int[] to = new int[] {
                 R.id.code,
-                R.id.name,
-                R.id.description,
+                R.id.txtitemname,
+                R.id.txtitembuylink,
                 R.id.checkBox,
         };
 
@@ -59,6 +61,11 @@ public class ItemListViewCursorAdaptorActivity extends Activity {
         ListView listView = (ListView) findViewById(R.id.listView1);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapter);
+
+        //TextView tv = (TextView) findViewById(R.id.txtitembuylink);
+        //String html = (String) tv.getText();
+        //tv.setText(Html.fromHtml(html));
+
 
         //listView.setOnItemClickListener(new OnItemClickListener() {
         //    @Override

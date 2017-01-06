@@ -1,15 +1,17 @@
 package com.doitlikeitsyourjob.pack4mums;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class MenuCreateNewList extends AppCompatActivity {
+public class MenuCreateNewList extends Activity {
 
     private MainMenuDbAdapter dbHelper;
 
@@ -17,6 +19,30 @@ public class MenuCreateNewList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.menu_create_newlist);
+
+        //Bundle extras = getIntent().getExtras(); //get Bundle of extras
+        String s = getIntent().getStringExtra("LIST_NAME");
+
+        if (s != null)
+        {
+            //Get Properties of List from _id
+            //int i = Integer.parseInt(s);
+
+            //dbHelper = new MainMenuDbAdapter(this);
+            //dbHelper.open();
+
+            //Generate ListView from SQLite Database
+            //displayListView(i);
+            //Populate AddEditList
+
+            EditText et = (EditText) findViewById(R.id.etxtCreateNameList);
+            et.setText("");
+            et.append(s);
+
+            //Populate Highlight Correct Colour
+
+        }
+
 
         setupUIEvents();
 
@@ -36,20 +62,32 @@ public class MenuCreateNewList extends AppCompatActivity {
 
     private void handleBtnCreateSaveListClick() {
 
+
         EditText et = (EditText) findViewById(R.id.etxtCreateNameList);
-        Editable inputtext = et.getText();
 
-        Toast toast = Toast.makeText(getApplicationContext(),inputtext, Toast.LENGTH_SHORT);
-        toast.show();
+        if (et.getText().length()!=0) {
+            //Editable inputtext = et.getText();
 
-        //INSERT NEW LIST INTO DB
-        dbHelper = new MainMenuDbAdapter(this);
-        dbHelper.open();
-        dbHelper.insertMainList(String.valueOf(inputtext));
-        dbHelper.close();
+            Toast toast = Toast.makeText(getApplicationContext(),et.getText(), Toast.LENGTH_SHORT);
+            toast.show();
 
-        Intent intent = new Intent(this, MainMenuListViewCursorAdaptorActivity.class);
-        startActivity(intent);
+            //INSERT NEW LIST INTO DB
+            dbHelper = new MainMenuDbAdapter(this);
+            dbHelper.open();
+            dbHelper.insertMainList(String.valueOf(et.getText()));
+            dbHelper.close();
+
+            Intent intent = new Intent(this, MainMenuListViewCursorAdaptorActivity.class);
+            startActivity(intent);
+        }
+        else
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Error");
+            builder.setMessage("Enter List Name");
+            builder.setPositiveButton("Ok",null);
+            builder.show();
+        }
 
     }
 

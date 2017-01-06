@@ -3,19 +3,8 @@ package com.doitlikeitsyourjob.pack4mums;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
-import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class PackListViewCursorAdaptorActivity extends Activity {
 
@@ -58,8 +47,8 @@ public class PackListViewCursorAdaptorActivity extends Activity {
         // the XML defined views which the data will be bound to
         int[] to = new int[] {
                 R.id.code,
-                R.id.name,
-                R.id.description,
+                R.id.txtitemname,
+                R.id.txtitembuylink,
                 R.id.checkBox,
         };
 
