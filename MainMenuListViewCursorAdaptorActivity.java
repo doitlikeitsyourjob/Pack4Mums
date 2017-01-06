@@ -46,15 +46,6 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
             initialiseDBLists();
         }
 
-       //dbHelper.close();
-
-        //mCount.moveToFirst();
-        //int count =  mCount.getInt(); //.getInt(0);
-        //mCount.close();
-        //if (dbHelper == null) {
-
-        //}
-
         //Generate ListView from SQLite Database
         displayListViewFav();
         displayListView();
@@ -386,14 +377,16 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
         Button btn = (Button) findViewById(R.id.btnMenuFavList);
         String LIST_NAME = (String) btn.getText();
 
-        //ListView lv = (ListView) findViewById(R.id.listViewFav);
-        //int position = lv.getPositionForView(view);
+        ListView lv = (ListView) findViewById(R.id.listViewFav);
+        int position = lv.getPositionForView(view);
 
-        //Cursor cursor = (Cursor) lv.getItemAtPosition(position);
-        //Integer ListCode = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));  //listcode
+        Cursor cursor = (Cursor) lv.getItemAtPosition(position);
+        Integer LIST_ID = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));  //listcode
 
         Intent intent = new Intent(getApplicationContext(), MenuCreateNewList.class);
         intent.putExtra("LIST_NAME", LIST_NAME);
+        intent.putExtra("LIST_ID", LIST_ID);
+
         startActivity(intent);
 
 

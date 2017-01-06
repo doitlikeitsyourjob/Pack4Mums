@@ -22,6 +22,7 @@ public class MenuCreateNewList extends Activity {
 
         //Bundle extras = getIntent().getExtras(); //get Bundle of extras
         String s = getIntent().getStringExtra("LIST_NAME");
+        Integer listid = getIntent().getIntExtra("LIST_ID",0);
 
         if (s != null)
         {
@@ -43,51 +44,61 @@ public class MenuCreateNewList extends Activity {
 
         }
 
-
-        setupUIEvents();
+        setupUIEvents(listid);
 
     }
 
-    void setupUIEvents() {
+    void setupUIEvents(final Integer listid) {
 
         Button btnCreateNewList = (Button) findViewById(R.id.btnCreateNewList_SAVE);
         btnCreateNewList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                handleBtnCreateSaveListClick();
+                handleBtnCreateSaveListClick(listid);
             }
         });
 
     }
 
-    private void handleBtnCreateSaveListClick() {
+    private void handleBtnCreateSaveListClick(Integer listid) {
 
-
-        EditText et = (EditText) findViewById(R.id.etxtCreateNameList);
-
-        if (et.getText().length()!=0) {
-            //Editable inputtext = et.getText();
-
-            Toast toast = Toast.makeText(getApplicationContext(),et.getText(), Toast.LENGTH_SHORT);
+        if (listid != 0)
+        {
+            //Save a list
+            Toast toast = Toast.makeText(getApplicationContext(),"Save Existing List", Toast.LENGTH_SHORT);
             toast.show();
-
-            //INSERT NEW LIST INTO DB
-            dbHelper = new MainMenuDbAdapter(this);
-            dbHelper.open();
-            dbHelper.insertMainList(String.valueOf(et.getText()));
-            dbHelper.close();
-
-            Intent intent = new Intent(this, MainMenuListViewCursorAdaptorActivity.class);
-            startActivity(intent);
         }
         else
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
-            builder.setMessage("Enter List Name");
-            builder.setPositiveButton("Ok",null);
-            builder.show();
+            //Save a new list
+            Toast toast = Toast.makeText(getApplicationContext(),"New List", Toast.LENGTH_SHORT);
+            toast.show();
+
+            EditText et = (EditText) findViewById(R.id.etxtCreateNameList);
+            if (et.getText().length()!=0) {
+
+                    //INSERT NEW LIST INTO DB
+                    dbHelper = new MainMenuDbAdapter(this);
+                    dbHelper.open();
+                    dbHelper.insertMainList(String.valueOf(et.getText()));
+                    dbHelper.close();
+
+                    Intent intent = new Intent(this, MainMenuListViewCursorAdaptorActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Error");
+                    builder.setMessage("Enter List Name");
+                    builder.setPositiveButton("Ok",null);
+                    builder.show();
+                }
+
+
         }
+
+
 
     }
 
