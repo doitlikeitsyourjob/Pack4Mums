@@ -2,6 +2,7 @@ package com.doitlikeitsyourjob.pack4mums;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -54,14 +55,35 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
 
     }
 
+
     private void initialiseDBLists()
     {
-        //Remove All Previous Data
-        dbHelper.deleteAllMainLists();
-        //Insert All Lists
-        dbHelper.insertMenuLists();
-        dbHelper.insertMenuItemLists();
-        dbHelper.insertItemLists();
+
+        AsyncTask<Long, Object, Object> InitialiseTask =  new AsyncTask<Long, Object, Object>()
+                {
+                    @Override
+                    protected Object doInBackground(Long... params)
+                    {
+                        //Remove All Previous Data
+                        dbHelper.deleteAllMainLists();
+                        //Insert All Lists
+                        dbHelper.insertMenuLists();
+                        dbHelper.insertMenuItemLists();
+                        dbHelper.insertItemLists();
+                        //dbHelper.deleteList(params[0]);
+                        return null;
+                    } //end method doInBackgroud
+
+                    @Override
+                    protected void onPostExecute (Object result)
+                    {
+                        finish(); //return to Activity
+                        Intent intent = new Intent(getApplicationContext(), MainMenuListViewCursorAdaptorActivity.class);
+                        startActivity(intent);
+                    } //end method on PostExecute
+                }; //end new Async Task
+        InitialiseTask.execute();
+
     }
         //Cursor mCount = dh.rawQuery("select count(*) from tblList", null);
         //mCount.moveToFirst();
@@ -137,6 +159,7 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
     }
 
     private void displayListView() {
+
         Cursor cursor = dbHelper.fetchAllMainLists();
 
         // The desired columns to be bound
@@ -373,27 +396,19 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
     }
 
     private void MenuEdit(View view) {
-
-        Button btn = (Button) findViewById(R.id.btnMenuFavList);
-        String LIST_NAME = (String) btn.getText();
-
         ListView lv = (ListView) findViewById(R.id.listViewFav);
         int position = lv.getPositionForView(view);
 
         Cursor cursor = (Cursor) lv.getItemAtPosition(position);
-        Integer LIST_ID = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));  //listcode
+        Integer LIST_ID = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
+        String  LIST_NAME = cursor.getString(cursor.getColumnIndexOrThrow("listname"));
 
         Intent intent = new Intent(getApplicationContext(), MenuCreateNewList.class);
-        intent.putExtra("LIST_NAME", LIST_NAME);
         intent.putExtra("LIST_ID", LIST_ID);
+        intent.putExtra("LIST_NAME", LIST_NAME);
 
         startActivity(intent);
 
-
-        //dbHelper.updateFavListFav(ListCode);
-        //
-        //displayListViewFav();
-        //displayListView();
     }
 
     private void MenuDelete(View view) {
@@ -405,7 +420,7 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
         final Long ListId = cursor.getLong(cursor.getColumnIndexOrThrow("_id"));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainMenuListViewCursorAdaptorActivity.this);
-        builder.setTitle("Delete");
+        builder.setTitle("Delete List");
         builder.setMessage("Are you sure?");
 
         builder.setPositiveButton("Yes",
@@ -415,7 +430,6 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
                     public void onClick(DialogInterface dialog, int button)
                     {
                         //final databaseconnector dbconn = new databaseconnector(this);
-
                         //create AsyncTask that deletes the list in another thread
                         AsyncTask<Long, Object, Object> deleteTask =
                             new AsyncTask<Long, Object, Object>()
@@ -431,6 +445,8 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
                                 protected void onPostExecute (Object result)
                                 {
                                     finish(); //return to Activity
+                                    Intent intent = new Intent(getApplicationContext(), MainMenuListViewCursorAdaptorActivity.class);
+                                    startActivity(intent);
                                 } //end method on PostExecute
                             }; //end new Async Task
                 deleteTask.execute(new Long[]{ListId});
@@ -440,7 +456,6 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
 
         builder.setNegativeButton("No",null);
         builder.show();
-
 
     }
 
