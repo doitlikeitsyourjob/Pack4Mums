@@ -1,31 +1,66 @@
 package com.doitlikeitsyourjob.pack4mums;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.Html;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
+import android.widget.Toast;
 
 public class ItemListViewCursorAdaptorActivity extends Activity {
 
     private MainMenuDbAdapter dbHelper;
-    private SimpleCursorAdapter dataAdapter;
+    //private SimpleCursorAdapter dataAdapter;
+    private ItemListView_CustomAdapter dataAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.packlist);
         String s = getIntent().getStringExtra("LIST_CODE");
-        int i = Integer.parseInt(s);
 
-        dbHelper = new MainMenuDbAdapter(this);
-        dbHelper.open();
+        if (s !=null) {
+            int i = Integer.parseInt(s);
+            dbHelper = new MainMenuDbAdapter(this);
+            dbHelper.open();
 
-        //Generate ListView from SQLite Database
-        displayListView(i);
+            //Generate ListView from SQLite Database
+            displayListView(i);
+            setupUIEvents(i);
+        }
 
+    }
+
+     void setupUIEvents(final Integer i) {
+            Button btnAddItems = (Button) findViewById(R.id.btnAddItems);
+         btnAddItems.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    handleBtnAddItemsClick(i);
+                }
+            });
+
+         Button btnCreateItems = (Button) findViewById(R.id.btnCreateItems);
+         btnCreateItems.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    handleBtnCreateItemsClick();
+                }
+            });
+
+        }
+
+    void handleBtnAddItemsClick(Integer i) {
+         Intent intent = new Intent(this, AddItemListViewCursorAdaptorActivity.class);
+         intent.putExtra("LIST_CODE", i);
+         startActivity(intent);
+    }
+
+    void handleBtnCreateItemsClick() {
+        Intent intent = new Intent(this, MenuCreateNewList.class);
+        startActivity(intent);
     }
 
     private void displayListView(Integer i) {
@@ -45,20 +80,20 @@ public class ItemListViewCursorAdaptorActivity extends Activity {
                 R.id.code,
                 R.id.txtitemname,
                 R.id.txtitembuylink,
-                R.id.checkBox,
+                R.id.item_chkbx,
         };
 
         // create the adapter using the cursor pointing to the desired data
         //as well as the layout information
-        dataAdapter = new SimpleCursorAdapter(
+        //dataAdapter = new SimpleCursorAdapter(
+        dataAdapter = new ItemListView_CustomAdapter(
                 this, R.layout.list_info,
                 cursor,
                 columns,
                 to,
                 0);
 
-
-        ListView listView = (ListView) findViewById(R.id.listView1);
+        ListView listView = (ListView) findViewById(R.id.lvItemList);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapter);
 
@@ -85,4 +120,69 @@ public class ItemListViewCursorAdaptorActivity extends Activity {
         //);
 
     }
+
+    public void clickHandlerItemCheckBox(View v) {
+        ListView lv = (ListView) findViewById(R.id.lvItemList);
+        int position = lv.getPositionForView(v);
+
+        Cursor cursor = (Cursor) lv.getItemAtPosition(position);
+        final Integer ItemId = cursor.getInt(cursor.getColumnIndexOrThrow("itemid")); //listcode
+
+        Integer cb_value = cursor.getInt(cursor.getColumnIndexOrThrow("checktick")); //listcode
+
+        final String ListId = getIntent().getStringExtra("LIST_CODE");
+
+        //DEBUG
+        //String text = "ListId:" + ListId + " , Item_id:" + ItemId.toString();
+
+        if (cb_value.equals(1)) {
+
+            dbHelper.open();
+            dbHelper.updateItemCheckBox_Uncheck(Integer.valueOf(ListId), ItemId);
+            dbHelper.close();
+
+            //TextView tv = (TextView) findViewById(R.id.txtitemname);
+            //tv.setPaintFlags(tv.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
+        else
+        {
+            dbHelper.open();
+            dbHelper.updateItemCheckBox_Check(Integer.valueOf(ListId), ItemId);
+            dbHelper.close();
+
+            //TextView tv = (TextView) findViewById(R.id.txtitemname);
+            //tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+
+        //Intent intent = new Intent(getApplicationContext(), ItemListViewCursorAdaptorActivity.class);
+        //intent.putExtra("LIST_CODE", ListId);
+        //startActivity(intent);
+
+        //Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT);
+        //toast.show();
+
+    }
+
+
+    public void clickHandlerItemOptions(View v) {
+        //ListView lv = (ListView) findViewById(R.id.listViewMain);
+        //int position = lv.getPositionForView(v);
+        //String info = String.valueOf(position);
+        //Cursor cursor = (Cursor) lv.getItemAtPosition(position);
+        //String ListCode = cursor.getString(cursor.getColumnIndexOrThrow("listcode"));
+        //Integer ListCode = cursor.getInt(cursor.getColumnIndexOrThrow("_id")); //listcode
+
+        Toast toast = Toast.makeText(getApplicationContext(), "Hello", Toast.LENGTH_SHORT);
+        toast.show();
+
+        //dbHelper.open();
+        //dbHelper.updateMainListFav(ListCode);
+        //dbHelper.close();
+
+        //Intent intent = new Intent(getApplicationContext(), MainMenuListViewCursorAdaptorActivity.class);
+        //startActivity(intent);
+        //displayListViewFav();
+        //displayListView();
+    }
+
 }

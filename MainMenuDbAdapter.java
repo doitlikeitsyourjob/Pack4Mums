@@ -60,7 +60,7 @@ public class MainMenuDbAdapter {
                     KEY_CHECK + ", " +
                     KEY_DELETE + ", " +
                     KEY_STAR + ", " +
-                    " UNIQUE ( " + KEY_MAINLISTID +","+KEY_MAINITEMID+" ));";
+                    " UNIQUE ( " + KEY_MAINLISTID +"," +KEY_MAINITEMID+" ));";
 
     private static final String CREATE_ITEMLISTS =
             "CREATE TABLE if not exists " + SQLITE_TABLE_ITEMLISTS + " (" +
@@ -184,24 +184,24 @@ public class MainMenuDbAdapter {
     //MAINITEMLISTS
     public void insertMenuItemLists() {
         createMainItemLists(1, 1, 1, 0, 0);
-        createMainItemLists(1, 2, 1, 0, 0);
+        createMainItemLists(1, 2, 0, 0, 0);
         createMainItemLists(1, 3, 1, 0, 0);
-        createMainItemLists(1, 4, 1, 0, 0);
+        createMainItemLists(1, 4, 0, 0, 0);
         createMainItemLists(1, 5, 1, 0, 0);
-        createMainItemLists(2, 4, 0, 0, 0);
-        createMainItemLists(3, 5, 0, 0, 0);
+        createMainItemLists(2, 1, 0, 0, 0);
+        createMainItemLists(3, 1, 0, 0, 0);
     }
 
     //ITEMLISTS
     public void insertItemLists() {
-        createItemLists("Sleeping Bag","link1");
-        createItemLists("Night nappies (1.3 p night)","link2");
-        createItemLists("Pyjamas","link3");
-        createItemLists("Comforter","link4");
-        createItemLists("Baby monitor","link5");
+        createItemLists(mCtx.getString(R.string.item_r1c1),mCtx.getString(R.string.item_r1c2));
+        createItemLists(mCtx.getString(R.string.item_r2c1),mCtx.getString(R.string.item_r2c2));
+        createItemLists(mCtx.getString(R.string.item_r3c1),mCtx.getString(R.string.item_r3c2));
+        createItemLists(mCtx.getString(R.string.item_r4c1),mCtx.getString(R.string.item_r4c2));
+        createItemLists(mCtx.getString(R.string.item_r5c1),mCtx.getString(R.string.item_r5c2));
     }
 
-    //FETCHES
+    //SELECTS
     public Cursor fetchMainListsByName(String inputText) throws SQLException {
         Log.w(TAG, inputText);
         Cursor mCursor = null;
@@ -260,10 +260,11 @@ public class MainMenuDbAdapter {
         return mCursor;
     }
 
+    //ITEMS
     public Cursor fetchItemsForList(Integer listcode){
 
         //String stringlistcode =  Integer.toString(listcode);
-        final String MY_QUERY = "SELECT * FROM ItemList a INNER JOIN MainItemList b ON a.itemid=b.itemid WHERE b._id=" + listcode + "";
+        final String MY_QUERY = "SELECT * FROM ItemList a INNER JOIN MainItemList b ON a.itemid=b.itemid WHERE b.listid=" + listcode + "";
         //a._id, a.itemcode, a.itemname, a.itembuylink, b.checktick, b.starred
         Cursor mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
 
@@ -272,6 +273,21 @@ public class MainMenuDbAdapter {
         }
         return mCursor;
     }
+
+    //ITEM LIST
+    public Cursor fetchALLItemsForList(Integer listcode){
+
+        //String stringlistcode =  Integer.toString(listcode);
+        final String MY_QUERY = "SELECT * FROM ItemList a LEFT JOIN MainItemList b ON a.itemid=b.itemid WHERE b.listid=" + listcode + "";
+        //a._id, a.itemcode, a.itemname, a.itembuylink, b.checktick, b.starred
+        Cursor mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
+
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
 
 
     //INSERTS
@@ -294,6 +310,15 @@ public class MainMenuDbAdapter {
         mDb.execSQL(strSQL);
     }
 
+    public void updateEditList(Integer code, String listname) {
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_LISTNAME, listname);
+        cv.put(KEY_FAV, 1);
+        mDb.update(SQLITE_TABLE_MAINLISTS, cv, "_id="+code, null);
+
+        //String strSQL = "UPDATE MainList SET fav = 0 WHERE _id = " + String.valueOf(code)+ "";
+        //mDb.execSQL(strSQL);
+    }
 
 
     public void updateMainListFav(Integer code) {
@@ -303,6 +328,22 @@ public class MainMenuDbAdapter {
         String strSQL = "UPDATE MainList SET fav = 1 WHERE _id = " + String.valueOf(code) + "";
         mDb.execSQL(strSQL);
     }
+
+    public void updateItemCheckBox_Check(Integer ListId, Integer ItemId) {
+
+        String strSQL = "UPDATE MainItemList SET checktick = 1 WHERE listId = " + String.valueOf(ListId) + " and itemid = " + String.valueOf(ItemId);
+        mDb.execSQL(strSQL);
+
+    }
+
+    public void updateItemCheckBox_Uncheck(Integer ListId, Integer ItemId) {
+
+        String strSQL = "UPDATE MainItemList SET checktick = 0 WHERE listId = " + String.valueOf(ListId) + " and itemid = " + String.valueOf(ItemId);
+        mDb.execSQL(strSQL);
+
+    }
+
+
 
     //DELETES
     public void deleteList(Long code) {

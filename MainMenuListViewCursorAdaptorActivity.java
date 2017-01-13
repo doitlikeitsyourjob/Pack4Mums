@@ -22,7 +22,7 @@ import android.widget.PopupMenu;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
+//import android.widget.AdapterView.OnItemClickListener;
 
 public class MainMenuListViewCursorAdaptorActivity extends Activity {
 
@@ -39,11 +39,12 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
         dbHelper = new MainMenuDbAdapter(this);
         dbHelper.open();
 
-        //If DB Has 0 rows in main list, Initialise DB
         Cursor CursorCnt = dbHelper.fetchAll();
         Integer mCount = CursorCnt.getCount();
+        dbHelper.close();
 
         if(mCount==0){
+            //If DB Has 0 rows in main list, Initialise DB
             initialiseDBLists();
         }
 
@@ -59,30 +60,36 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
     private void initialiseDBLists()
     {
 
-        AsyncTask<Long, Object, Object> InitialiseTask =  new AsyncTask<Long, Object, Object>()
-                {
-                    @Override
-                    protected Object doInBackground(Long... params)
-                    {
+        //AsyncTask<Long, Object, Object> InitialiseTask =  new AsyncTask<Long, Object, Object>()
+        //        {
+        //            @Override
+        //            protected Object doInBackground(Long... params)
+        //            {
+                        dbHelper.open();
                         //Remove All Previous Data
                         dbHelper.deleteAllMainLists();
                         //Insert All Lists
                         dbHelper.insertMenuLists();
                         dbHelper.insertMenuItemLists();
                         dbHelper.insertItemLists();
-                        //dbHelper.deleteList(params[0]);
-                        return null;
-                    } //end method doInBackgroud
+                        dbHelper.close();
+        //                //dbHelper.deleteList(params[0]);
+        //                return null;
+        //            } //end method doInBackgroud
+        //
 
-                    @Override
-                    protected void onPostExecute (Object result)
-                    {
-                        finish(); //return to Activity
-                        Intent intent = new Intent(getApplicationContext(), MainMenuListViewCursorAdaptorActivity.class);
-                        startActivity(intent);
-                    } //end method on PostExecute
-                }; //end new Async Task
-        InitialiseTask.execute();
+        //            @Override
+        //            protected void onPostExecute (Object result)
+        //            {
+        //                finish(); //return to Activity
+        //            } //end method on PostExecute
+        //        }; //end new Async Task
+        //InitialiseTask.execute();
+
+        //Intent intent = new Intent(getApplicationContext(), MainMenuListViewCursorAdaptorActivity.class);
+        //startActivity(intent);
+        displayListViewFav();
+        displayListView();
 
     }
         //Cursor mCount = dh.rawQuery("select count(*) from tblList", null);
@@ -93,11 +100,12 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
         //if (count == 0) {
 
     private void displayListViewFav() {
-
+        //Remove All Previous Data
+        dbHelper.open();
         Cursor cursor = dbHelper.fetchAllFav();
+        Integer mCount = cursor.getCount();
 
         //If nothing in FavList, Hide Label and Button
-        Integer mCount = cursor.getCount();
         if(mCount==0){
             Button btn = (Button) findViewById(R.id.btnFavShowHide);
             btn.setVisibility(View.GONE);
@@ -140,27 +148,46 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
         ListView listView = (ListView) findViewById(R.id.listViewFav);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapterFav);
-        listView.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> listView, View view,
-                                    int position, long id) {
 
-                Cursor cursor = (Cursor) listView.getItemAtPosition(position);
-                // Get the cursor, positioned to the corresponding row in the result set
-                String code = cursor.getString(cursor.getColumnIndexOrThrow("code"));
-                Toast.makeText(getApplicationContext(), code, Toast.LENGTH_SHORT).show();
-
-                //Intent intent = new Intent(getApplicationContext(), PackListViewCursorAdaptorActivity.class);
-                //startActivity(intent);
-
-            }
-        });
-
+        //listView.setOnItemClickListener(new OnItemClickListener() {
+        //    @Override
+        //    public void onItemClick(AdapterView<?> listView, View view,
+        //                            int position, long id) {
+        //
+        //        Cursor cursor = (Cursor) listView.getItemAtPosition(position);
+        //        // Get the cursor, positioned to the corresponding row in the result set
+        //        String code = cursor.getString(cursor.getColumnIndexOrThrow("code"));
+        //        Toast.makeText(getApplicationContext(), code, Toast.LENGTH_SHORT).show();
+        //
+        //        //Intent intent = new Intent(getApplicationContext(), PackListViewCursorAdaptorActivity.class);
+        //      //startActivity(intent);
+        //    }
+        //});
+        dbHelper.close();
     }
 
     private void displayListView() {
-
+        dbHelper.open();
         Cursor cursor = dbHelper.fetchAllMainLists();
+        Integer mCount = cursor.getCount();
+
+        //If nothing in FavList, Hide Label and Button
+        if(mCount==0){
+            Button btn = (Button) findViewById(R.id.btnAllListShowHide);
+            btn.setVisibility(View.GONE);
+
+            TextView txt = (TextView) findViewById(R.id.txtAll);
+            txt.setVisibility(View.GONE);
+        }
+        else
+        {
+            Button btn = (Button) findViewById(R.id.btnAllListShowHide);
+            btn.setVisibility(View.VISIBLE);
+
+            TextView txt = (TextView) findViewById(R.id.txtAll);
+            txt.setVisibility(View.VISIBLE);
+        }
+
 
         // The desired columns to be bound
         String[] columns = new String[] {
@@ -234,6 +261,7 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
             }
         });
 
+        dbHelper.close();
     }
 
     void setupUIEvents() {
@@ -387,12 +415,31 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
         int position = lv.getPositionForView(view);
 
         Cursor cursor = (Cursor) lv.getItemAtPosition(position);
-        Integer ListCode = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));  //listcode
+        final Integer ListCode = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));  //listcode
 
-        dbHelper.updateFavListFav(ListCode);
+        AsyncTask<Long, Object, Object> Task =  new AsyncTask<Long, Object, Object>()
+        {
+            @Override
+            protected Object doInBackground(Long... params)
+            {
+                dbHelper.open();
+                dbHelper.updateFavListFav(ListCode);
+                dbHelper.close();
+                return null;
+            } //end method doInBackgroud
 
-        displayListViewFav();
-        displayListView();
+            @Override
+            protected void onPostExecute (Object result)
+            {
+                finish(); //return to Activity
+                Intent intent = new Intent(getApplicationContext(), MainMenuListViewCursorAdaptorActivity.class);
+                startActivity(intent);
+            } //end method on PostExecute
+        }; //end new Async Task
+        Task.execute();
+
+        //displayListViewFav();
+        //displayListView();
     }
 
     private void MenuEdit(View view) {
@@ -408,7 +455,6 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
         intent.putExtra("LIST_NAME", LIST_NAME);
 
         startActivity(intent);
-
     }
 
     private void MenuDelete(View view) {
@@ -437,7 +483,9 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
                                 @Override
                                 protected Object doInBackground(Long... params)
                                 {
+                                    dbHelper.open();
                                     dbHelper.deleteList(params[0]);
+                                    dbHelper.close();
                                     return null;
                                 } //end method doInBackgroud
 
@@ -473,10 +521,14 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
         //Toast toast = Toast.makeText(getApplicationContext(), ListCode, Toast.LENGTH_SHORT);
         //toast.show();
 
+        dbHelper.open();
         dbHelper.updateMainListFav(ListCode);
+        dbHelper.close();
 
-        displayListViewFav();
-        displayListView();
+        Intent intent = new Intent(getApplicationContext(), MainMenuListViewCursorAdaptorActivity.class);
+        startActivity(intent);
+        //displayListViewFav();
+        //displayListView();
     }
 
     //Buttons in ListView --> ClickThrough to List Details
@@ -491,8 +543,9 @@ public class MainMenuListViewCursorAdaptorActivity extends Activity {
         String ListCode = cursor.getString(cursor.getColumnIndexOrThrow("_id")); //listcode
 
         //Intent intent = new Intent(getBaseContext(), PackListViewCursorAdaptorActivity.class);
+        //Intent intent = new Intent(getApplicationContext(),ItemListView.class);
+        Intent intent = new Intent(getApplicationContext(),ItemListViewCursorAdaptorActivity.class);
 
-        Intent intent = new Intent(getApplicationContext(), ItemListViewCursorAdaptorActivity.class);
         intent.putExtra("LIST_CODE", ListCode);
         startActivity(intent);
 

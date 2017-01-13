@@ -3,12 +3,14 @@ package com.doitlikeitsyourjob.pack4mums;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 //import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MenuCreateNewList extends Activity {
@@ -41,11 +43,14 @@ public class MenuCreateNewList extends Activity {
             et.append(s);
 
             //Populate Highlight Correct Colour
-
+        }
+        else
+        {
+            TextView tv = (TextView) findViewById(R.id.tvlabel_Title);
+            tv.setText("New List");
         }
 
         setupUIEvents(listid);
-
     }
 
     void setupUIEvents(final Integer listid) {
@@ -60,13 +65,38 @@ public class MenuCreateNewList extends Activity {
 
     }
 
-    private void handleBtnCreateSaveListClick(Integer listid) {
+    private void handleBtnCreateSaveListClick(final Integer listid) {
 
         if (listid != 0)
         {
-            //Save a list
-            Toast toast = Toast.makeText(getApplicationContext(),"Save Existing List", Toast.LENGTH_SHORT);
-            toast.show();
+            //Save an Existing List
+            TextView tv = (TextView) findViewById(R.id.etxtCreateNameList);
+            final String listname = String.valueOf(tv.getText());
+
+            AsyncTask<Long, Object, Object> Task =  new AsyncTask<Long, Object, Object>()
+            {
+                @Override
+                protected Object doInBackground(Long... params)
+                {
+                    //Toast toast = Toast.makeText(getApplicationContext(),"Save Existing List", Toast.LENGTH_SHORT);
+                    //toast.show();
+
+                    //AsyncTask
+                    dbHelper = new MainMenuDbAdapter(getApplicationContext());
+                    dbHelper.open();
+                    dbHelper.updateEditList(listid, listname);
+                    dbHelper.close();
+                    return null;
+                } //end method doInBackgroud
+
+                @Override
+                protected void onPostExecute (Object result)
+                {
+                    finish(); //return to Activity
+                } //end method on PostExecute
+            }; //end new Async Task
+            Task.execute();
+
         }
         else
         {
@@ -77,14 +107,29 @@ public class MenuCreateNewList extends Activity {
             EditText et = (EditText) findViewById(R.id.etxtCreateNameList);
             if (et.getText().length()!=0) {
 
-                    //INSERT NEW LIST INTO DB
-                    dbHelper = new MainMenuDbAdapter(this);
-                    dbHelper.open();
-                    dbHelper.insertMainList(String.valueOf(et.getText()));
-                    dbHelper.close();
+                final String listname = String.valueOf(et.getText());
 
-                    Intent intent = new Intent(this, MainMenuListViewCursorAdaptorActivity.class);
-                    startActivity(intent);
+                AsyncTask<Long, Object, Object> Task =  new AsyncTask<Long, Object, Object>()
+                {
+                    @Override
+                    protected Object doInBackground(Long... params)
+                    {
+                        //AsyncTask
+                        //INSERT NEW LIST INTO DB
+                        dbHelper = new MainMenuDbAdapter(getApplicationContext());
+                        dbHelper.open();
+                        dbHelper.insertMainList(listname);
+                        dbHelper.close();
+                        return null;
+                    } //end method doInBackgroud
+
+                    @Override
+                    protected void onPostExecute (Object result)
+                    {
+                        finish(); //return to Activity
+                    } //end method on PostExecute
+                }; //end new Async Task
+                Task.execute();
                 }
                 else
                 {
@@ -95,10 +140,11 @@ public class MenuCreateNewList extends Activity {
                     builder.show();
                 }
 
-
         }
 
-
+        //Refresh
+        Intent intent = new Intent(this, MainMenuListViewCursorAdaptorActivity.class);
+        startActivity(intent);
 
     }
 

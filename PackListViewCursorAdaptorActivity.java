@@ -49,7 +49,7 @@ public class PackListViewCursorAdaptorActivity extends Activity {
                 R.id.code,
                 R.id.txtitemname,
                 R.id.txtitembuylink,
-                R.id.checkBox,
+                R.id.item_chkbx,
         };
 
         // create the adapter using the cursor pointing to the desired data
@@ -64,7 +64,7 @@ public class PackListViewCursorAdaptorActivity extends Activity {
 
 
 
-        ListView listView = (ListView) findViewById(R.id.listView1);
+        ListView listView = (ListView) findViewById(R.id.lvItemList);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapter);
 
