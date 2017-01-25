@@ -25,7 +25,7 @@ public class MainMenuDbAdapter {
     public static final String KEY_STAR = "starred";
 
     //ITEMLIST
-    public static final String KEY_ITEMID = "itemid";
+    public static final String KEY_ITEMID = "_id";
     public static final String KEY_ITEMNAME = "itemname";
     public static final String KEY_ITEMBUYLINK = "itembuylink";
 
@@ -217,12 +217,50 @@ public class MainMenuDbAdapter {
                     KEY_LISTNAME + " like '%" + inputText + "%'", null,
                     null, null, null, null);
         }
+
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
         return mCursor;
 
     }
+
+
+    public Cursor fetchItemListsByName(String inputText, Integer listid) throws SQLException {
+        Log.w(TAG, inputText);
+        Cursor mCursor = null;
+        if (inputText == null  ||  inputText.length () == 0)  {
+            //mCursor = mDb.query(SQLITE_TABLE_ITEMLISTS, new String[] {KEY_ITEMID, KEY_ITEMNAME, KEY_ITEMBUYLINK}, null, null, null, null, null);
+            final String MY_QUERY = "SELECT distinct a._id, a.itemname, (Select count(b.listid) from MainItemList b WHERE a._id = b.itemid AND b.listid = " + listid + ") as [itembuylink] FROM ItemList a  order by 2 asc";
+            mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
+        }
+        else {
+            final String MY_QUERY = "SELECT distinct a._id, a.itemname, (Select count(b.listid) from MainItemList b WHERE a._id = b.itemid AND b.listid = " + listid + ") as [itembuylink] FROM ItemList a WHERE a.itemname LIKE '%" + inputText + "%' order by 2 asc";
+            mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
+            //mCursor = mDb.query(true, SQLITE_TABLE_ITEMLISTS, new String[] {KEY_ITEMID, KEY_ITEMNAME, KEY_ITEMBUYLINK}, KEY_ITEMNAME + " like '%" + inputText + "%'", null, null, null, null, null);
+        }
+
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    //ITEM LIST
+    public Cursor fetchALLItemsForList(Integer listcode){
+
+        //String stringlistcode =  Integer.toString(listcode);
+        final String MY_QUERY = "SELECT distinct a._id, a.itemname, (Select count(b.listid) from MainItemList b WHERE a._id = b.itemid AND b.listid = " + listcode + ") as [itembuylink] FROM ItemList a  order by 2 asc";
+        Cursor mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
+
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+
+
 
     public Cursor fetchAll() {
 
@@ -264,7 +302,7 @@ public class MainMenuDbAdapter {
     public Cursor fetchItemsForList(Integer listcode){
 
         //String stringlistcode =  Integer.toString(listcode);
-        final String MY_QUERY = "SELECT * FROM ItemList a INNER JOIN MainItemList b ON a.itemid=b.itemid WHERE b.listid=" + listcode + "";
+        final String MY_QUERY = "SELECT * FROM ItemList a INNER JOIN MainItemList b ON a._id=b.itemid WHERE b.listid=" + listcode + "";
         //a._id, a.itemcode, a.itemname, a.itembuylink, b.checktick, b.starred
         Cursor mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
 
@@ -273,21 +311,6 @@ public class MainMenuDbAdapter {
         }
         return mCursor;
     }
-
-    //ITEM LIST
-    public Cursor fetchALLItemsForList(Integer listcode){
-
-        //String stringlistcode =  Integer.toString(listcode);
-        final String MY_QUERY = "SELECT * FROM ItemList a LEFT JOIN MainItemList b ON a.itemid=b.itemid WHERE b.listid=" + listcode + "";
-        //a._id, a.itemcode, a.itemname, a.itembuylink, b.checktick, b.starred
-        Cursor mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
-
-        if (mCursor != null) {
-            mCursor.moveToFirst();
-        }
-        return mCursor;
-    }
-
 
 
     //INSERTS
@@ -299,6 +322,43 @@ public class MainMenuDbAdapter {
 
         //String strSQL = "INSERT INTO MainList VALUSET fav = 0 WHERE listcode = " + name + "";
         //mDb.execSQL(strSQL);
+    }
+
+    public Cursor fetchListName(Integer listid) {
+
+        final String MY_QUERY = "SELECT * from MainList WHERE _id = '" + listid + "'";
+        Cursor mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
+
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    public Cursor fetchItemId(String itemname) {
+
+        final String MY_QUERY = "SELECT _id from ItemList WHERE itemname = '" + itemname + "'";
+        Cursor mCursor =  mDb.rawQuery(MY_QUERY, new String[]{});
+
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    public void insertNewItemList(String itemname) {
+        String strSQL = "INSERT INTO ItemList (itemname, itembuylink) VALUES ('" + itemname + "','<a href=https://www.amazon.co.uk/gp/search?ie=UTF8&camp=1634&creative=6738&index=baby&keywords=" + itemname.replace(" ", "%20") + "&linkCode=ur2&tag=doitlikeitsyo-21>buy</a>')";
+        mDb.execSQL(strSQL);
+    }
+
+    public void ItemList_AddItem(Integer listid, Integer itemid) {
+        String strSQL = "INSERT INTO MainItemList (listid, itemid, checktick, deleterow, starred) VALUES (" + listid + "," + itemid + ",0,0,0)";
+        mDb.execSQL(strSQL);
+    }
+
+    public void ItemList_RemoveItem(Integer listid, Integer itemid) {
+        String strSQL = "DELETE FROM MainItemList WHERE listid = " + listid + " and itemid = " + itemid;
+        mDb.execSQL(strSQL);
     }
 
     //UPDATES

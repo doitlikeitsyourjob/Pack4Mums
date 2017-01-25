@@ -46,7 +46,7 @@ public class MenuCreateNewList extends Activity {
         }
         else
         {
-            TextView tv = (TextView) findViewById(R.id.tvlabel_Title);
+            TextView tv = (TextView) findViewById(R.id.lblTitle_EditMenu);
             tv.setText("New List");
         }
 
@@ -101,8 +101,8 @@ public class MenuCreateNewList extends Activity {
         else
         {
             //Save a new list
-            Toast toast = Toast.makeText(getApplicationContext(),"New List", Toast.LENGTH_SHORT);
-            toast.show();
+            //Toast toast = Toast.makeText(getApplicationContext(),"New List", Toast.LENGTH_SHORT);
+            //toast.show();
 
             EditText et = (EditText) findViewById(R.id.etxtCreateNameList);
             if (et.getText().length()!=0) {
