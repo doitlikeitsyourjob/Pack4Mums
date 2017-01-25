@@ -135,6 +135,41 @@ public class AddItemListViewCursorAdaptorActivity extends Activity {
 
     }
 
+    public void clickHandlerItemAdd(View v) {
+
+        //Save a new Item
+        //Toast toast = Toast.makeText(getApplicationContext(), "New Item", Toast.LENGTH_SHORT);
+        //toast.show();
+        Integer listid = getIntent().getIntExtra("LIST_ID",0);
+
+        EditText et = (EditText) findViewById(R.id.myItemFilter);
+        if (et.getText().length() != 0) {
+
+            final String itemname = String.valueOf(et.getText());
+            //INSERT NEW LIST INTO DB
+            dbHelper = new MainMenuDbAdapter(getApplicationContext());
+            dbHelper.open();
+            //ADD ITEM
+            dbHelper.insertNewItemList(itemname);
+
+            Cursor cursor = dbHelper.fetchItemId(itemname);
+            Integer itemid = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
+
+            // ADD ITEM TO LIST
+            dbHelper.ItemList_AddItem(listid, itemid);
+
+            Cursor cursor2= dbHelper.fetchListName(listid);
+            String listname = cursor2.getString(cursor2.getColumnIndexOrThrow("listname"));
+            dbHelper.close();
+            //SHOW LIST
+            //Refresh
+            Intent intent = new Intent(this, ItemListViewCursorAdaptorActivity.class);
+            intent.putExtra("LIST_ID", listid);
+            intent.putExtra("LIST_NAME", listname);
+            startActivity(intent);
+        }
+    }
+
     @Override
     public void onBackPressed(){
         Integer i = getIntent().getIntExtra("LIST_ID",0);
